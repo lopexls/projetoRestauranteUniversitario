@@ -1,0 +1,2 @@
+# Diagramas gerados não precisam ser incluídos no git
+*.png
