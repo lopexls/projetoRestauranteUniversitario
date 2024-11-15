@@ -1,0 +1,97 @@
+@startuml
+
+class Vasilha {
+    -qtd alimento
+}
+
+struct Ingrediente {
+    +% aceitação
+}
+
+class Bancada {
+    +esta_ativa
+    ..
+    -tempo_servico_acumulado
+    -n_usuarios_servidos
+    -Fila *
+    -Vasilha[]
+    -Usuario[]
+    -Servente[]
+    -Descanso *
+    --
+    +Bancada *bancada_new()
+    +void bancada_free()
+    +void bancada_ativar()
+    +void bancada_solicita_servente()
+    +void bancada_libera_servente()
+    +void bancada_servico()
+    +double bancada_tempo_servico_medio()
+}
+
+class Fila {
+    +número_de_usuários
+    ..
+    -head
+    -tail
+    --
+    +fila_inserir()
+    +fila_remover
+}
+
+struct Nó {
+    +data
+    +next
+}
+
+class Descanso {
+    -serventes[]
+    -inicio
+    -fim
+    --
+    +Descanso *descanso_new()
+    +void descanso_free()
+    +Servente *descanso_despacha_servente()
+    +void descanso_recebe_servente()
+    +Servente *descanso_troca_servente()
+}
+
+class Servente {
+    -cooldown
+    -n_usuarios_servidos
+    -tempo_servico_acumulado
+    -hora_ultima_mudanca
+    --
+    +Servente *servente_new()
+    +Servente *servente_update()
+    +Servente *servente_transfere()
+    +Servente *servente_inicia_servico()
+    +bool servente_esta_servindo()
+    +bool servente_precisa_descansar()
+    +bool servente_pode_trabalhar()
+    +double servente_media_tempo_servico()
+}
+
+class Usuário {
+    +vegetariano
+    ..
+    -hora_criação
+    -hora_chegada_bancada
+    -hora_saida_bancada
+    -status_serviço
+    --
+    +Usuario *usuario_new()
+    +bool usuario_foi_servido()
+    +int tempo_espera_fila()
+    +int tempo_servico_bancada()
+}
+
+Bancada --> Fila : Gerencia
+Fila --* Nó : Contém
+Bancada <..> Descanso : Troca serventes
+Descanso --> Servente : Cria & Gerencia
+Bancada --> Vasilha : Gerencia
+Vasilha --* Ingrediente : Contém
+Fila ..|> Usuário : Armazena excedente
+Fila ..> Bancada : Envia usuário
+
+@enduml

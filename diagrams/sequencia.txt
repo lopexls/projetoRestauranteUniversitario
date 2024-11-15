@@ -1,0 +1,90 @@
+@startuml
+
+control Controle
+database "Gerador de usuários" as Gerador
+collections Bancada
+queue "Descanso de Serventes" as Descanso
+queue Fila
+actor Report
+
+loop Até o fechamento e não existirem usuários na fila
+
+group Controles de gerente
+    Controle -> Bancada : Requisita número de pessoas na fila
+    Bancada -> Fila : Requisita número de pessoas na fila
+    Fila -> Bancada : Número de pessoas aguardando
+    Bancada -> Controle : Número de pessoas aguardando
+    Controle -> Bancada : Requisita tempo médio de serviço
+    Bancada -> Controle : Tempo médio de serviço
+
+    opt
+        Controle -> Bancada ++ : Abre nova bancada
+        Bancada -> Descanso : Envia número mínimo de serventes
+        alt
+            Descanso -> Bancada : Serventes
+        else
+            Descanso -> Bancada : Sem serventes disponíveis
+        end
+        Bancada -> Controle -- : done
+    end
+    opt
+        Controle -> Bancada ++ : Convoque mais serventes
+        Bancada -> Descanso : Manda mais um servente
+        alt
+            Descanso -> Bancada : Servente
+        else
+            Descanso -> Bancada : Sem serventes disponíveis
+        end
+        Bancada -> Controle -- : done
+    end
+end
+
+|||
+
+group Report
+    Controle -> Report : Envia número total de pessoas nas filas
+    Controle -> Report : Envia tempo médio de espera nas filas
+    Controle -> Report : Envia tempo médio de serviço nas bancadas
+end
+
+|||
+
+alt Se o horário permitir
+    Controle -> Gerador ++ : Gera usuários
+    Gerador -> Controle -- : Usuários novos
+
+    Controle -> Bancada : Envia usuários novos para onde tiver menos fila
+end
+
+|||
+
+Controle -> Bancada ++ : Inicia serviço
+loop Se servente precisa descansar
+    Bancada -> Descanso : Envia servente
+    alt
+        Descanso -> Bancada : Envia substituto
+    else
+        Descanso -> Bancada : Ninguém disponível
+    end
+end
+
+rnote over Bancada : Lógica de serviço
+opt Se tiver capacidade de serviço
+    Bancada -> Fila : Manda próximo usuário
+    alt
+        Fila -> Bancada : Usuário
+    else
+        Fila -> Bancada : Sem novos usuários
+    end
+end
+
+Bancada -> Controle -- : Usuário liberado
+
+|||
+
+rnote over Controle : sleep();
+Controle -> Controle : +1s
+
+end
+
+@enduml

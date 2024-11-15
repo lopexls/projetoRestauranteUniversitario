@@ -1,0 +1,71 @@
+@startuml
+
+title Lógica de bancada
+
+floating note left
+    Uma bancada tem N posições,
+    com N = número de ingredientes servidos.
+
+    Para cada posição, existem associadas:
+    * Uma vasilha;
+    * Um usuário, que pode estar lá esperando para
+        ser servido ou esperando para avançar para a próxima.
+    * Um servente, que pode estar associado à mais de uma
+        posição na bancada (i.e. servindo mais de um ingrediente).
+end note
+
+start
+
+partition Fim da bancada {
+if (Tem usuário na última posição &&
+O usuário na última posição foi servido?) then (sim)
+    :Libera o usuário para o refeitório>
+else (não)
+endif
+}
+
+:seleciona a última posição na bancada]
+
+partition Itera posições {
+while (A posição atual é a primeira?) is (não)
+    if (Tem usuário na posição atual?) then (sim)
+        if (O usuário foi servido?) then (não)
+            if (A vasilha está ociosa?) then (sim)
+                if (O servente está ocioso?) then (sim)
+                    partition Serviço individual {
+                    :calcula a porção servida;
+                    if (Tem alimento suficiente na vasilha?) then (sim)
+                        :calcula o tempo de serviço;
+                        :adiciona o tempo de serviço ao servente;
+                        :marca o usuário como servido;
+                    else (não)
+                        :adiciona o tempo de reposição à vasilha;
+                        :adiciona o montante de reposição ao total consumido do ingrediente;
+                    endif
+                    }
+                else (não)
+                    if (O servente é o mesmo da posição anterior?) then (não)
+                        :tira 1s do tempo de serviço do servente]
+                    else (sim)
+                    endif
+                endif
+            else (não)
+                :tira 1s do tempo de serviço da vasilha]
+            endif
+        else (sim)
+        endif
+    else (não)
+        if (Tem usuário na posição anterior &&
+        O usuário anterior foi servido?) then (sim)
+            :chama o usuário anterior para a posição atual
+            ou chama o próximo usuário da fila<
+        else (não)
+        endif
+    endif
+backward :seleciona a posição anterior na bancada]
+endwhile (sim)
+}
+
+stop
+
+@enduml
