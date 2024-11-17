@@ -9,35 +9,13 @@ actor Report
 
 loop Até o fechamento e não existirem usuários na fila
 
-group Controles de gerente
-    Controle -> Bancada : Requisita número de pessoas na fila
-    Bancada -> Fila : Requisita número de pessoas na fila
-    Fila -> Bancada : Número de pessoas aguardando
-    Bancada -> Controle : Número de pessoas aguardando
-    Controle -> Bancada : Requisita tempo médio de serviço
-    Bancada -> Controle : Tempo médio de serviço
+|||
 
-    opt
-        Controle -> Bancada ++ : Abre nova bancada
-        Bancada -> Descanso : Envia número mínimo de serventes
-        alt
-            Descanso -> Bancada : Serventes
-        else
-            Descanso -> Bancada : Sem serventes disponíveis
-        end
-        Bancada -> Controle -- : done
-    end
-    opt
-        Controle -> Bancada ++ : Convoque mais serventes
-        Bancada -> Descanso : Manda mais um servente
-        alt
-            Descanso -> Bancada : Servente
-        else
-            Descanso -> Bancada : Sem serventes disponíveis
-        end
-        Bancada -> Controle -- : done
-    end
-end
+hnote over Controle
+    Implementa controles de gerente:
+    - Abrir/fechar bancadas
+    - Ativar/desativar serventes.
+endhnote
 
 |||
 
@@ -68,7 +46,7 @@ loop Se servente precisa descansar
     end
 end
 
-rnote over Bancada : Lógica de serviço
+hnote over Bancada : Lógica de serviço
 opt Se tiver capacidade de serviço
     Bancada -> Fila : Manda próximo usuário
     alt
@@ -82,7 +60,7 @@ Bancada -> Controle -- : Usuário liberado
 
 |||
 
-rnote over Controle : sleep();
+hnote over Controle : usleep();
 Controle -> Controle : +1s
 
 end
