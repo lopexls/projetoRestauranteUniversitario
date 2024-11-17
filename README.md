@@ -147,6 +147,10 @@ O comentário segue o estilo:
  * @return descrição do que é retornado, se tiver algo.
  */
 ```
+É necessário que o comentário inicie com uma barra e dois asteriscos.
+
+Mais informações sobre a sintaxe reconhecida pelo *doxygen* podem ser estudados
+na página do projeto.
 
 [2]: https://doxygen.nl/index.html
 
