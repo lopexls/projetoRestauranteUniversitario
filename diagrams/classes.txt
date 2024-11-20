@@ -48,27 +48,27 @@ class Descanso {
     -inicio
     -fim
     --
-    +Descanso *descanso_new()
     +void descanso_free()
+    +Descanso *descanso_new()
     +Servente *descanso_despacha_servente()
-    +void descanso_recebe_servente()
+    +int descanso_recebe_servente()
     +Servente *descanso_troca_servente()
 }
 
 class Servente {
-    -cooldown
+    -livre_as
     -n_usuarios_servidos
-    -tempo_servico_acumulado
+    -s_servico_acumulado
     -hora_ultima_mudanca
     --
+    +void servente_free()
     +Servente *servente_new()
-    +Servente *servente_update()
     +Servente *servente_transfere()
-    +Servente *servente_inicia_servico()
-    +bool servente_esta_servindo()
+    +void servente_inicia_atendimento()
+    +bool servente_pode_atender()
     +bool servente_precisa_descansar()
     +bool servente_pode_trabalhar()
-    +double servente_media_tempo_servico()
+    +double servente_tempo_atendimento_medio()
 }
 
 class Usuário {
