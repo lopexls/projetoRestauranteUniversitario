@@ -6,3 +6,5 @@
 #define TEMPSERMAX 3600
 #define TEMPSERINT 1800
 #define QTDSERMAX 12
+#define TEMPUSUMIN 3
+#define TEMPUSUMAX 6
