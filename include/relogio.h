@@ -1,5 +1,4 @@
-#pragma once
-
+#ifndef RELOGIO_H
 #define RELOGIO_H
 
 #include <stdio.h>
@@ -20,4 +19,5 @@ void relogio_formatado(char *buffer);
 void relogio_incrementar(int segundos);    
 int relogio_obter();                       
 
+#endif // RELOGIO_H
 

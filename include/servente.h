@@ -12,7 +12,11 @@
  * 4. Atender um usuário de cada vez. Enquanto estiver atendendo, não pode
  *    iniciar outro atendimento.
  */
-#pragma once
+#ifndef SERVENTE_H
+#define SERVENTE_H
+
+#include "config.h"
+#include "vasilha.h"
 
 #include <stdbool.h>
 
@@ -116,3 +120,6 @@ bool servente_pode_trabalhar(const Servente *servente)
  */
 double servente_tempo_atendimento_medio(const Servente *servente)
     __attribute__((nonnull(1), pure));
+
+
+#endif // SERVENTE_H

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #define NING 6
 #define BANSERMIN 3
@@ -8,3 +9,8 @@
 #define QTDSERMAX 12
 #define TEMPUSUMIN 3
 #define TEMPUSUMAX 6
+#define USUCHANCEVEG 0.1
+#define QTDPORCVAS 30
+#define TEMPREPOVAS 20
+
+#endif // CONFIG_H

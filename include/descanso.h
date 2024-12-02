@@ -24,7 +24,8 @@
  * de fila para a organização do descanso ou (o que talvez seria bem melhor)
  * criar uma segunda fila apenas para estas passagens temporárias.
  */
-#pragma once
+#ifndef DESCANSO_H
+#define DESCANSO_H
 
 #include "servente.h"
 
@@ -114,3 +115,6 @@ int descanso_recebe_servente(Descanso *descanso, Servente *servente)
  */
 Servente *descanso_troca_servente(Descanso *descanso, Servente *servente)
     __attribute__((nonnull(1, 2)));
+
+
+#endif // DESCANSO_H

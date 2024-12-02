@@ -1,5 +1,5 @@
-// fila.c
-#include <stdio.h>
+#define _DEFAULT_SOURCE
+
 #include <stdlib.h>
 #include "fila.h"
 
@@ -11,17 +11,19 @@ void inicializarFila(Fila* fila) {
 }
 
 // Função para verificar se a fila está vazia
-int filaVazia(Fila* fila) {
+int filaVazia(const Fila* fila) {
     return fila->tamanho == 0;
 }
 
+void filaEsvazia(Fila* fila) {
+    while(!filaVazia(fila))
+        usuario_free(desenfileirar(fila));
+}
+
 // Função para enfileirar um usuário na fila
-void enfileirar(Fila* fila, Usuario usuario) {
-    Nodo* novoNodo = (Nodo*)malloc(sizeof(Nodo));
-    if (novoNodo == NULL) {
-        printf("Erro ao alocar memória para o usuário.\n");
-        return;
-    }
+void enfileirar(Fila* fila, Usuario* usuario) {
+    Nodo* novoNodo = (Nodo*)xmalloc(sizeof(Nodo));
+
     novoNodo->usuario = usuario;
     novoNodo->proximo = NULL;
 
@@ -35,15 +37,12 @@ void enfileirar(Fila* fila, Usuario usuario) {
 }
 
 // Função para desenfileirar um usuário da fila
-Usuario desenfileirar(Fila* fila) {
-    if (filaVazia(fila)) {
-        printf("Fila vazia, não há usuários para atender.\n");
-        Usuario usuarioVazio = {CARNIVORO, 0, 0, 0};  // Retorna um usuário "vazio"
-        return usuarioVazio;
-    }
+Usuario* desenfileirar(Fila* fila) {
+    if (filaVazia(fila))
+        return NULL;
 
     Nodo* temp = fila->frente;
-    Usuario usuario = temp->usuario;
+    Usuario* usuario = temp->usuario;
     fila->frente = fila->frente->proximo;
     if (fila->frente == NULL) {
         fila->traseira = NULL;
@@ -53,15 +52,3 @@ Usuario desenfileirar(Fila* fila) {
 
     return usuario;
 }
-
-// Função para exibir os usuários da fila (para depuração)
-void exibirFila(Fila* fila) {
-    Nodo* atual = fila->frente;
-    while (atual != NULL) {
-        printf("Usuário: Tipo %s, Tempo de Atendimento: %d segundos\n",
-               atual->usuario.tipo == VEGETARIANO ? "Vegetariano" : "Carnívoro",
-               atual->usuario.tempoAtendimento);
-        atual = atual->proximo;
-    }
-}
-
