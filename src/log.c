@@ -15,7 +15,9 @@ static const char *err_types[] = {
 
 
 static const char *err_messages[] = {
-    "erro de alocação de memória"
+    "erro de alocação de memória.",
+    "descanso cheio. Isso é um bug.",
+    "horário de refeição solicitada não está definido."
 };
 
 

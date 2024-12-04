@@ -30,14 +30,18 @@ Usuario *usuario_new(void)
 }
 
 
-int usuario_status(const Usuario *u)
+bool usuario_esta_aguardando(const Usuario *u)
 {
-    if (u->hora_fim_atendimento == -1)
-        return USUARIO_AGUARDANDO;
-    else if (hora_atual >= u->hora_fim_atendimento)
-        return USUARIO_SERVIDO;
-    else
-        return USUARIO_EM_ATENDIMENTO;
+    return u->hora_fim_atendimento <= 0;
+}
+
+
+bool usuario_foi_atendido(const Usuario *u)
+{
+    if (u->hora_fim_atendimento <= 0)
+        return false;
+
+    return hora_atual >= u->hora_fim_atendimento;
 }
 
 

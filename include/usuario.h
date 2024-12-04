@@ -1,14 +1,9 @@
 #ifndef USUARIO_H
 #define USUARIO_H
 
+#include <stdbool.h>
+
 typedef enum { CARNIVORO, VEGETARIANO } TipoUsuario;
-
-
-enum {
-    USUARIO_AGUARDANDO = 1,
-    USUARIO_EM_ATENDIMENTO,
-    USUARIO_SERVIDO
-};
 
 
 typedef struct {
@@ -23,7 +18,9 @@ typedef struct {
 void usuario_free(Usuario *u);
 Usuario *usuario_new(void);
 
-int usuario_status(const Usuario *u);
+bool usuario_esta_aguardando(const Usuario *u);
+bool usuario_foi_atendido(const Usuario *u);
+
 int usuario_tempo_fila(const Usuario *u);
 int usuario_tempo_atendimento(const Usuario *u);
 int usuario_tempo_total(const Usuario *u);

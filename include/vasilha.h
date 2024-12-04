@@ -6,11 +6,11 @@
 typedef struct
 {
     int qtdIng;
-    Ingrediente *ingrediente;
+    const Ingrediente *ingrediente;
 } Vasilha;
 
 
-void inicializarVasilha(Vasilha *v, Ingrediente *i);
+void inicializarVasilha(Vasilha *v, const Ingrediente *i);
 
 
 #endif // VASILHA_H

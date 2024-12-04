@@ -19,7 +19,9 @@ typedef enum
 /** Um tipo para a fonte do erro. */
 typedef enum
 {
-    ERR_MEMORY_ALLOC    /**< Erro de alocação de memória. */
+    ERR_MEMORY_ALLOC,    /**< Erro de alocação de memória. */
+    ERR_DESCANSO_CHEIO,  /**< Erro de descanso cheio. Indica BUG. */
+    ERR_HORA_NAO_DEF     /**< Erro de horário indefinido. */
 } ErrSource;
 
 

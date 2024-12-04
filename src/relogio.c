@@ -1,36 +1,58 @@
+#define _DEFAULT_SOURCE
+
+#include "config.h"
+#include "log.h" 
 #include "relogio.h"
+
+
+#define HORAFMTLEN 9 // Tamanho da string "HH:MM:SS" + \0
+
 
 int hora_atual = 0;
 
-// horários padrão
-enum Horarios {
-    CAFE_DA_MANHA = 8 * 60 * 60, 
-    ALMOCO = 12 * 60 * 60,       
-    JANTA = 18 * 60 * 60         
-};
 
-// horário específico
-void relogio_set(Horarios horario) {
-    hora_atual = horario;
-}
-
-// horário atual no formato HH:MM:SS
-void relogio_formatado(char *buffer) {
-    int horas = hora_atual / 3600;
-    int minutos = (hora_atual % 3600) / 60;
-    int segundos = hora_atual % 60;
-    snprintf(buffer, 9, "%02d:%02d:%02d", horas, minutos, segundos);
-}
-
-// incrementar o relógio em segundos
-void relogio_incrementar(int segundos) {
-    hora_atual += segundos;
-    if (hora_atual >= 24 * 60 * 60) { 
-        hora_atual %= 24 * 60 * 60;
+void relogio_set(Refeicao ref)
+{
+    switch (ref)
+    {
+        case CAFE_DA_MANHA:
+            hora_atual = HORAINICAFE;
+            break;
+        case ALMOCO:
+            hora_atual = HORAINIALMOCO;
+            break;
+        case JANTA:
+            hora_atual = HORAINIJANTA;
+            break;
+        default:
+            log_err(ERR_CRITICAL, ERR_HORA_NAO_DEF);
     }
 }
 
-// obter a hora atual em segundos desde a meia-noite
-int relogio_obter() {
-    return hora_atual;
+
+bool relogio_check_end(Refeicao ref)
+{
+    switch (ref)
+    {
+        case CAFE_DA_MANHA: return hora_atual >= HORAFIMCAFE;
+        case ALMOCO:        return hora_atual >= HORAFIMALMOCO;
+        case JANTA:         return hora_atual >= HORAFIMJANTA;
+        default:
+            log_err(ERR_CRITICAL, ERR_HORA_NAO_DEF);
+            return true;
+    }
+}
+
+
+char *relogio_formatado(void)
+{
+    static char buffer[HORAFMTLEN];
+
+    int horas = hora_atual / 3600;
+    int minutos = (hora_atual % 3600) / 60;
+    int segundos = hora_atual % 60;
+
+    snprintf(buffer, 9, "%02d:%02d:%02d", horas, minutos, segundos);
+
+    return buffer;
 }

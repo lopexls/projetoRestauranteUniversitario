@@ -12,7 +12,7 @@ static const double aceitacaoMediaDoTipo[] = {0.95, 0.9, 0.75, 0.65, 0.65, 0.65,
 void inicializarIngrediente(Ingrediente *i, TipoIngrediente t)
 {
     i->capVasilha = QTDPORCVAS * porcaoMediaDoTipo[t];
-    i->aceitacaoMedia = rando_normal() + (aceitacaoMediaDoTipo[t] - 0.5);
+    i->chanceAceitacao = rando_normal() + (aceitacaoMediaDoTipo[t] - 0.5);
     i->porcaoMedia = porcaoMediaDoTipo[t];
 }
 

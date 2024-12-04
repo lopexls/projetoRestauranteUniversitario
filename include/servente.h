@@ -62,6 +62,19 @@ Servente *servente_transfere(Servente *servente)
     __attribute__((nonnull(1), returns_nonnull));
 
 
+/** Retorna o servente mais antigo entre `a` e `b`.
+ *
+ * O mais antigo é determinado pelo atributo `hora_ultima_mudanca`. Ou seja,
+ * a ideia de "mais antigo" denota o que está à mais tempo em atividade.
+ *
+ * @param a Ponteiro para uma instância de `Servente`.
+ * @param b Ponteiro para uma instância de `Servente`.
+ * @return `a` se `a` for mais antigo que `b`. Se não, `b`.
+ */
+Servente *servente_mais_antigo(Servente *a, Servente *b)
+    __attribute__((nonnull(1, 2)));
+
+
 /** Põe o servente em estado de atendimento.
  *
  * Chamada no momento em que o servente começa a atender algum usuário. Calcula

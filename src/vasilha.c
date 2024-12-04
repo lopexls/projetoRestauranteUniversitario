@@ -1,13 +1,14 @@
 #define _DEFAULT_SOURCE
 
+#include "config.h"
 #include "rando.h"
 #include "vasilha.h"
 
 
-void inicializarVasilha(Vasilha *v, Ingrediente *i)
+void inicializarVasilha(Vasilha *v, const Ingrediente *i)
 {
     v->qtdIng = i->capVasilha;
-    v->ing = i;
+    v->ingrediente = i;
 }
 
 
@@ -20,9 +21,7 @@ int servirDaVasilha(Vasilha *v)
     int min = v->ingrediente->porcaoMedia - (5 * stddev);
     int max = v->ingrediente->porcaoMedia + (5 * stddev);
 
-    int porcaoServida = rando_normal_int(min, max,
-                                         v->ingrediente->porcaoMedia,
-                                         stddev);
+    int porcaoServida = rando_normal(v->ingrediente->porcaoMedia, stddev);
 
     v->qtdIng -= porcaoServida;
 

@@ -14,6 +14,7 @@
 
 #include "config.h"
 #include "relogio.h"
+#include "restaurante.h"
 
 #include <argp.h>
 #include <errno.h>
@@ -127,6 +128,9 @@ int main(int argc, char *argv[])
 
     argp_parse(&argp, argc, argv, 0, 0, &opts);
 
+    Restaurante *ru = restaurante_new(opts.refeicao, opts.velocidade);
+
+    restaurante_free(ru);
 
     return 0;
 }

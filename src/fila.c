@@ -1,7 +1,10 @@
 #define _DEFAULT_SOURCE
 
-#include <stdlib.h>
 #include "fila.h"
+#include "xalloc.h"
+
+#include <stdlib.h>
+
 
 // Função para inicializar uma fila
 void inicializarFila(Fila* fila) {

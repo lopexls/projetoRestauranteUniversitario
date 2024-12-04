@@ -28,7 +28,13 @@ Servente *servente_transfere(Servente *servente)
 }
 
 
-void servente_inicia_atendimento(Servente *servente)
+Servente *servente_mais_antigo(Servente *a, Servente *b)
+{
+    return ((a->hora_ultima_mudanca < b->hora_ultima_mudanca) ? a : b);
+}
+
+
+void servente_inicia_atendimento(Servente *servente, Vasilha *vasilha)
 {
     int tempo_de_servico = rand() % (TEMPUSUMAX + 1 - TEMPUSUMIN) + TEMPUSUMIN;
     servente->livre_as = hora_atual + tempo_de_servico;
