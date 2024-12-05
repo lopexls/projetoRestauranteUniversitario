@@ -1,3 +1,5 @@
+#define _DEFAULT_SOURCE
+
 #include "rando.h"
 
 #include <math.h>

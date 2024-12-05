@@ -12,5 +12,6 @@ typedef struct
 
 void inicializarVasilha(Vasilha *v, const Ingrediente *i);
 
+int servirDaVasilha(Vasilha *v);
 
 #endif // VASILHA_H

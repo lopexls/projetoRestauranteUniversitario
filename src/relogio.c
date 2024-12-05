@@ -5,7 +5,9 @@
 #include "relogio.h"
 
 
-#define HORAFMTLEN 9 // Tamanho da string "HH:MM:SS" + \0
+// Tamanho da string "HH:MM:SS" + \0
+// Seria 9 bytes. Mas, colocamos 16 para silenciar um warning do compilador.
+#define HORAFMTLEN 16
 
 
 int hora_atual = 0;
@@ -52,7 +54,7 @@ char *relogio_formatado(void)
     int minutos = (hora_atual % 3600) / 60;
     int segundos = hora_atual % 60;
 
-    snprintf(buffer, 9, "%02d:%02d:%02d", horas, minutos, segundos);
+    snprintf(buffer, HORAFMTLEN, "%02d:%02d:%02d", horas, minutos, segundos);
 
     return buffer;
 }

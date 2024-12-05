@@ -95,7 +95,7 @@ Servente *descanso_despacha_servente(Descanso *descanso)
  *                 no descanso.
  * @return 0 se a função for bem sucedida e -1 no caso contrário.
  */
-int descanso_recebe_servente(Descanso *descanso, Servente *servente)
+void descanso_recebe_servente(Descanso *descanso, Servente *servente)
     __attribute__((nonnull(1, 2)));
 
 

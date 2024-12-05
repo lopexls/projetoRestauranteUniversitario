@@ -1,4 +1,4 @@
-#define _GNU_SOURCE
+#define _DEFAULT_SOURCE
 
 #include "config.h"
 #include "relogio.h"
@@ -34,12 +34,14 @@ Servente *servente_mais_antigo(Servente *a, Servente *b)
 }
 
 
-void servente_inicia_atendimento(Servente *servente, Vasilha *vasilha)
+int servente_inicia_atendimento(Servente *servente)
 {
     int tempo_de_servico = rand() % (TEMPUSUMAX + 1 - TEMPUSUMIN) + TEMPUSUMIN;
     servente->livre_as = hora_atual + tempo_de_servico;
     servente->s_atendimento_acumulado += tempo_de_servico;
     ++servente->n_usuarios_servidos;
+
+    return tempo_de_servico;
 }
 
 

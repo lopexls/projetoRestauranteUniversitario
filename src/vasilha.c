@@ -14,21 +14,19 @@ void inicializarVasilha(Vasilha *v, const Ingrediente *i)
 
 int servirDaVasilha(Vasilha *v)
 {
-    if (rando_uniform() < v->ingrediente->chanceAceitacao)
-        return 0;
+    // Ingrediente não aceito.
+    if (rando_uniform() > v->ingrediente->chanceAceitacao)
+        return -1;
 
-    int stddev = v->ingrediente->porcaoMedia / 10;
-    int min = v->ingrediente->porcaoMedia - (5 * stddev);
-    int max = v->ingrediente->porcaoMedia + (5 * stddev);
-
-    int porcaoServida = rando_normal(v->ingrediente->porcaoMedia, stddev);
+    const int stddev = v->ingrediente->porcaoMedia / 10;
+    const int porcaoServida = rando_normal(v->ingrediente->porcaoMedia, stddev);
 
     v->qtdIng -= porcaoServida;
 
     if (v->qtdIng <= 0)
     {
         v->qtdIng = v->ingrediente->capVasilha;
-        return TEMPREPOVAS;
+        return TEMPREPOSI;
     }
     else
         return 0;

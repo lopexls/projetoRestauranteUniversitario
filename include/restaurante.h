@@ -9,6 +9,9 @@
 
 typedef struct
 {
+    Refeicao refeicao;
+    int velocidade;
+
     Ingrediente cardapio[NING];
     Bancada *bancadas[QTDBANCADAMAX];
     Descanso *descanso;
@@ -16,9 +19,9 @@ typedef struct
 
 
 Restaurante *restaurante_new(Refeicao ref, int velocidade);
-void restaurante_free(Restaurante *restaurante);
+void restaurante_free(Restaurante *ru);
 
-int restaurante_simula(Restaurante *restaurante);
+int restaurante_simula(Restaurante *ru);
 
 
 #endif // RESTAURANTE_H

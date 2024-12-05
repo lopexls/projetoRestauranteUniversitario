@@ -16,7 +16,6 @@
 #define SERVENTE_H
 
 #include "config.h"
-#include "vasilha.h"
 
 #include <stdbool.h>
 
@@ -82,8 +81,9 @@ Servente *servente_mais_antigo(Servente *a, Servente *b)
  * esgote.
  *
  * @param servente ponteiro para uma instância de `Servente`.
+ * @return O tempo que o servente irá demorar naquele atendimento.
  */
-void servente_inicia_atendimento(Servente *servente) __attribute__((nonnull(1)));
+int servente_inicia_atendimento(Servente *servente) __attribute__((nonnull(1)));
 
 
 /** Verifica se o servente pode atender algum usuário.

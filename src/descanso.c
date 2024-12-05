@@ -1,7 +1,8 @@
-#define _GNU_SOURCE
+#define _DEFAULT_SOURCE
 
 #include "config.h"
 #include "descanso.h"
+#include "log.h"
 #include "servente.h"
 #include "xalloc.h"
 
@@ -51,24 +52,26 @@ Servente *descanso_despacha_servente(Descanso *descanso)
 }
 
 
-int descanso_recebe_servente(Descanso *descanso, Servente *servente)
+void descanso_recebe_servente(Descanso *descanso, Servente *servente)
 {
     // Condição que sinaliza que a fila está cheia.
     if (descanso->serventes[descanso->fim])
-        return -1;
+    {
+        log_err(ERR_CRITICAL, ERR_DESCANSO_CHEIO);
+        servente_free(servente);
+        return;
+    }
 
     /* Não é esperado que a fila fique cheia, uma vez que ela tem o
      * tamanho adequado para o número de serventes no sistema. Contudo, esta
      * condição poderá ocorrer no código do cliente caso sejam criadas mais de
      * uma instância de `Descanso` e os serventes sejam misturados entre elas.
      *
-     * Por isso, resolvemos não tratar isso como um bug no código, e sim como
-     * uma condição normal e retornar o erro pela função.
+     * Ainda assim, isso é um bug no código.
      */
 
     descanso->serventes[descanso->fim] = servente_transfere(servente);
     descanso->fim = (descanso->fim + 1) % (QTDSERMAX + 1);
-    return 0;
 }
 
 

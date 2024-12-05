@@ -7,61 +7,64 @@
 #include <stdlib.h>
 
 
-
 static void rebalanco(Bancada *bancada, Servente *novo)
 {
     Servente *set[BANSERMAX] = { NULL };
     int qtd_vas_por_serv[BANSERMAX] = { 0 };
-    int ind_bancada = 0;
-    int ind_set = 0;
-
-    if (bancada->n_serventes == 0 && !novo)
-        // Quer dizer que a bancada não tem serventes
-        return;
-
-    while (ind_bancada < BANSERMAX && !bancada->serventes[ind_bancada])
-        ++ind_bancada;
-
-    set[ind_set++] = bancada->serventes[ind_bancada++];
-
-    while (ind_set < BANSERMAX && ind_bancada < BANSERMAX)
-    {
-        if (bancada->serventes[ind_bancada] != set[ind_set - 1])
-            set[ind_set++] = bancada->serventes[ind_bancada];
-
-        ++ind_bancada;
-    }
-
-    if (novo)
-        set[ind_set] = novo;
-
+    int ind_set = 0, ind_bancada = 0;
     int quociente = NING / bancada->n_serventes;
     int resto = NING % bancada->n_serventes;
 
-    for (int i = bancada->n_serventes - 1; i >= 0; --i)
+    if (novo)
+        set[ind_set++] = novo;
+
+    for (ind_bancada = 0; ind_bancada < BANSERMAX; ++ind_bancada)
+    {
+        if (!bancada->serventes[ind_bancada])
+            continue;
+
+        bool found = false;
+
+        for (int i = 0; i < ind_set && !found; ++i)
+            if (bancada->serventes[ind_bancada] == set[i])
+                found = true;
+
+        if (!found)
+            set[ind_set++] = bancada->serventes[ind_bancada];
+    }
+
+    for (int i = ind_set - 1; i >= 0; --i)
     {
         qtd_vas_por_serv[i] = quociente;
         if (resto > 0)
         {
-            qtd_vas_por_serv[i] += 1;
+            ++qtd_vas_por_serv[i];
             --resto;
         }
     }
 
-    for (int i = 0; i < bancada->n_serventes; ++i)
-        for (int j = 0; j < qtd_vas_por_serv[i] - 1; ++j)
-            bancada->serventes[i + j] = set[i];
+    ind_bancada = 0;
+    for (int i = 0; i < ind_set; ++i)
+        for (int j = 0; j < qtd_vas_por_serv[i]; ++j)
+            bancada->serventes[ind_bancada++] = set[i];
 }
 
 
-static void atende_usuario(int pos)
+static void atende_usuario(Bancada *bancada, int pos)
 {
+    int tempo = servirDaVasilha(&bancada->vasilhas[pos]);
+    
+    if (tempo >= 0)
+        tempo += servente_inicia_atendimento(bancada->serventes[pos]);
+    else
+        tempo = 0;
+
+    usuario_inicia_atendimento(bancada->usuarios[pos], tempo);
 }
 
 
 void bancada_free(Bancada *bancada)
 {
-    bancada_desativar(bancada);
     free(bancada);
 }
 
@@ -74,19 +77,21 @@ Bancada *bancada_new(const Ingrediente cardapio[NING])
 
     for (int i = 0; i < NING; ++i)
         inicializarVasilha(&new->vasilhas[i], &cardapio[i]);
+
+    return new;
 }
 
 
-bool bancada_sem_usuarios(const Bancada *bancada)
+bool bancada_tem_usuarios(const Bancada *bancada)
 {
     for (int i = 0; i < NING; ++i)
         if (bancada->usuarios[i])
-            return false;
+            return true;
 
     if (!filaVazia(&bancada->fila))
-        return false;
+        return true;
 
-    return true;
+    return false;
 }
 
 
@@ -117,7 +122,7 @@ int bancada_ativar(Bancada *bancada, Descanso *descanso)
 
 void bancada_desativar(Bancada *bancada, Descanso *descanso)
 {
-    if (bancada_sem_usuarios(bancada))
+    if (!bancada_tem_usuarios(bancada))
     {
         const int c = bancada->n_serventes;
 
@@ -165,7 +170,8 @@ int bancada_dispensa_servente(Bancada *bancada, Descanso *descanso)
     descanso_recebe_servente(descanso, mais_antigo);
     --bancada->n_serventes;
 
-    rebalanco(bancada, NULL);
+    if (bancada->n_serventes)
+        rebalanco(bancada, NULL);
 
     return bancada->n_serventes;
 }
@@ -188,15 +194,21 @@ int bancada_descansos_obrigatorios(Bancada *bancada, Descanso *descanso)
         {
             dispensado = bancada->serventes[i];
             bancada->serventes[i] = NULL;
-            if (descanso_recebe_servente(descanso, dispensado))
-                log_err(ERR_CRITICAL, ERR_DESCANSO_CHEIO);
+            descanso_recebe_servente(descanso, dispensado);
             --bancada->n_serventes;
         }
     }
 
-    rebalanco(bancada, NULL);
+    if (bancada->n_serventes && dispensado)
+        rebalanco(bancada, NULL);
 
     return bancada->n_serventes;
+}
+
+
+void bancada_recebe_usuario(Bancada *bancada, Usuario *usuario)
+{
+    enfileirar(&bancada->fila, usuario);
 }
 
 
@@ -214,6 +226,7 @@ Usuario *bancada_atendimento(Bancada *bancada)
     for (int pos = NING - 1; pos > 0; --pos)
     {
         if (!bancada->usuarios[pos] &&
+            bancada->usuarios[pos - 1] &&
             usuario_foi_atendido(bancada->usuarios[pos - 1]))
         {
             bancada->usuarios[pos] = usuario_avancar(bancada->usuarios[pos - 1]);
@@ -224,18 +237,18 @@ Usuario *bancada_atendimento(Bancada *bancada)
             usuario_esta_aguardando(bancada->usuarios[pos]) &&
             servente_pode_atender(bancada->serventes[pos]))
         {
-            atende_usuario(pos);
+            atende_usuario(bancada, pos);
         }
     }
 
     if (!bancada->usuarios[0])
-        bancada->usuarios[0] = desenfileirar(&bancada->fila);
+        bancada->usuarios[0] = usuario_entrar_bancada(desenfileirar(&bancada->fila));
 
     if (bancada->usuarios[0] &&
         usuario_esta_aguardando(bancada->usuarios[0]) &&
         servente_pode_atender(bancada->serventes[0]))
     {
-        atende_usuario(0);
+        atende_usuario(bancada, 0);
     }
 
     return ret;

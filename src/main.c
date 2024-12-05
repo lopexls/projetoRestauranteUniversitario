@@ -130,8 +130,10 @@ int main(int argc, char *argv[])
 
     Restaurante *ru = restaurante_new(opts.refeicao, opts.velocidade);
 
+    int ret = restaurante_simula(ru);
+
     restaurante_free(ru);
 
-    return 0;
+    return ret;
 }
 

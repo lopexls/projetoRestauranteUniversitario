@@ -44,7 +44,7 @@ void bancada_free(Bancada *bancada) __attribute__((nonnull(1)));
 Bancada *bancada_new(const Ingrediente cardapio[NING])
     __attribute__((malloc(bancada_free)));
 
-bool bancada_sem_usuarios(const Bancada *bancada) __attribute__((nonnull(1)));
+bool bancada_tem_usuarios(const Bancada *bancada) __attribute__((nonnull(1)));
 
 int bancada_ativar(Bancada *bancada, Descanso *descanso)
     __attribute__((nonnull(1, 2)));
@@ -59,6 +59,9 @@ int bancada_dispensa_servente(Bancada *bancada, Descanso *descanso)
     __attribute__((nonnull(1, 2)));
 
 int bancada_descansos_obrigatorios(Bancada *bancada, Descanso *descanso)
+    __attribute__((nonnull(1, 2)));
+
+void bancada_recebe_usuario(Bancada *bancada, Usuario *usuario)
     __attribute__((nonnull(1, 2)));
 
 Usuario *bancada_atendimento(Bancada *bancada) __attribute__((nonnull(1)));
