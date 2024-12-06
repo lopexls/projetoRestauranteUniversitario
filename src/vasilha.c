@@ -5,15 +5,21 @@
 #include "vasilha.h"
 
 
-void inicializarVasilha(Vasilha *v, const Ingrediente *i)
+void inicializarVasilha(Vasilha *v, Ingrediente *i)
 {
     v->qtdIng = i->capVasilha;
     v->ingrediente = i;
 }
 
 
-int servirDaVasilha(Vasilha *v)
+int servirDaVasilha(Vasilha *v, bool vegetariano)
 {
+    if (vegetariano && v->ingrediente->tipo == PROTEINA_ANIMAL)
+        return -1;
+
+    if (!vegetariano && v->ingrediente->tipo == OPT_VEG)
+        return -1;
+
     // Ingrediente não aceito.
     if (rando_uniform() > v->ingrediente->chanceAceitacao)
         return -1;
@@ -22,6 +28,7 @@ int servirDaVasilha(Vasilha *v)
     const int porcaoServida = rando_normal(v->ingrediente->porcaoMedia, stddev);
 
     v->qtdIng -= porcaoServida;
+    v->ingrediente->totalConsumido += porcaoServida;
 
     if (v->qtdIng <= 0)
     {

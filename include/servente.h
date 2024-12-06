@@ -61,16 +61,18 @@ Servente *servente_transfere(Servente *servente)
     __attribute__((nonnull(1), returns_nonnull));
 
 
-/** Retorna o servente mais antigo entre `a` e `b`.
+/** Compara os serventes `a` e `b` por antiguidade..
  *
  * O mais antigo é determinado pelo atributo `hora_ultima_mudanca`. Ou seja,
  * a ideia de "mais antigo" denota o que está à mais tempo em atividade.
  *
  * @param a Ponteiro para uma instância de `Servente`.
  * @param b Ponteiro para uma instância de `Servente`.
- * @return `a` se `a` for mais antigo que `b`. Se não, `b`.
+ * @return -1 se `a` mais antigo que `b`.
+ *          1 se `b` mais antigo que `a`.
+ *          0 se forem iguais.
  */
-Servente *servente_mais_antigo(Servente *a, Servente *b)
+int servente_mais_antigo(const Servente *a, const Servente *b)
     __attribute__((nonnull(1, 2)));
 
 
@@ -131,7 +133,7 @@ bool servente_pode_trabalhar(const Servente *servente)
  * @param servente ponteiro para uma instância de `Servente`.
  * @return o tempo médio de atendimento, em segundos.
  */
-double servente_tempo_atendimento_medio(const Servente *servente)
+int servente_tempo_atendimento_medio(const Servente *servente)
     __attribute__((nonnull(1), pure));
 
 

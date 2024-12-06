@@ -20,6 +20,7 @@ Usuario *usuario_new(void);
 
 bool usuario_esta_aguardando(const Usuario *u);
 bool usuario_foi_atendido(const Usuario *u) __attribute__((nonnull(1)));
+bool usuario_vegetariano(const Usuario *u) __attribute__((nonnull(1)));
 
 int usuario_tempo_fila(const Usuario *u);
 int usuario_tempo_atendimento(const Usuario *u);

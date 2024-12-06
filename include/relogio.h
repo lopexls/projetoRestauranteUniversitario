@@ -16,9 +16,18 @@ extern int hora_atual;
 
 void relogio_set(Refeicao ref);
 
-bool relogio_check_end(Refeicao ref);
+bool relogio_fim(Refeicao ref) __attribute__((pure));
 
-char *relogio_formatado(void);
+int relogio_range(Refeicao ref) __attribute__((const));
+
+int relogio_hora_relativa(Refeicao ref) __attribute__((pure));
+
+double relogio_hora_fracionada(Refeicao ref);
+
+void relogio_incrementa(int velocidade);
+
+char *relogio_formatado(int segundos) __attribute__((returns_nonnull));
+
 
 #endif // RELOGIO_H
 

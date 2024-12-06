@@ -28,3 +28,11 @@ void log_err(ErrType type, ErrSource source)
     if (type == ERR_FATAL)
         exit(EXIT_FAILURE);
 }
+
+
+void log_debug(const char *msg)
+{
+#ifndef NDEBUG
+    printf("[DEBUG] %s\n", msg);
+#endif
+}

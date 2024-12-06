@@ -1,20 +1,20 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define NING 6
+#define NING 7
 #define BANSERMIN 3
-#define BANSERMAX NING
+#define BANSERMAX 6
 #define TEMPSERMAX 3600
 #define TEMPSERINT 1800
-#define QTDSERMAX 12
 #define TEMPUSUMIN 3
 #define TEMPUSUMAX 6
 #define USUCHANCEVEG 0.1
 #define QTDPORCVAS 30
 #define TEMPREPOSI 20
-#define VELOPADRAO 60
+#define VELOPADRAO -1
 #define VERSIONSTR "1.0"
-#define QTDBANCADAMAX 4
+#define QTDBANCADAMAX 6
+#define QTDSERMAX QTDBANCADAMAX * BANSERMAX
 #define HORAINICAFE 6.5 * 60 * 60    // 6:30
 #define HORAFIMCAFE 9 * 60 * 60      // 9:00
 #define HORAINIALMOCO 11 * 60 * 60   // 11:00

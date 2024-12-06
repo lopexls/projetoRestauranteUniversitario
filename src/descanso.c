@@ -38,8 +38,8 @@ Servente *descanso_despacha_servente(Descanso *descanso)
 {
     Servente *ret = NULL;
 
-    // Se a fila estiver vazia e se o servente puder trabalhar.
-    if (descanso->inicio != descanso->fim &&
+    // Se a fila não estiver vazia e se o servente puder trabalhar.
+    if (descanso->serventes[descanso->inicio] &&
         servente_pode_trabalhar(descanso->serventes[descanso->inicio]))
     {
         ret = servente_transfere(descanso->serventes[descanso->inicio]);

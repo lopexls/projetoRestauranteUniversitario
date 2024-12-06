@@ -11,6 +11,7 @@ typedef struct
 {
     Refeicao refeicao;
     int velocidade;
+    int n_bancadas_ativas;
 
     Ingrediente cardapio[NING];
     Bancada *bancadas[QTDBANCADAMAX];

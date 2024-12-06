@@ -16,9 +16,11 @@ typedef enum
 
 typedef struct
 {
+    TipoIngrediente tipo;
     int porcaoMedia;
     double chanceAceitacao;
     int capVasilha;
+    int totalConsumido;
 } Ingrediente;
 
 

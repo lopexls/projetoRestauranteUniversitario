@@ -3,15 +3,18 @@
 
 #include "ingrediente.h"
 
+#include <stdbool.h>
+
+
 typedef struct
 {
     int qtdIng;
-    const Ingrediente *ingrediente;
+    Ingrediente *ingrediente;
 } Vasilha;
 
 
-void inicializarVasilha(Vasilha *v, const Ingrediente *i);
+void inicializarVasilha(Vasilha *v, Ingrediente *i);
 
-int servirDaVasilha(Vasilha *v);
+int servirDaVasilha(Vasilha *v, bool vegetariano);
 
 #endif // VASILHA_H

@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 
+#define QUANDO_CHAMAR_SERVENTE 300 // 5 minutos de espera na fila.
 
 static void rebalanco(Bancada *bancada, Servente *novo)
 {
@@ -18,7 +19,7 @@ static void rebalanco(Bancada *bancada, Servente *novo)
     if (novo)
         set[ind_set++] = novo;
 
-    for (ind_bancada = 0; ind_bancada < BANSERMAX; ++ind_bancada)
+    for (ind_bancada = 0; ind_bancada < NING; ++ind_bancada)
     {
         if (!bancada->serventes[ind_bancada])
             continue;
@@ -52,7 +53,8 @@ static void rebalanco(Bancada *bancada, Servente *novo)
 
 static void atende_usuario(Bancada *bancada, int pos)
 {
-    int tempo = servirDaVasilha(&bancada->vasilhas[pos]);
+    int tempo = servirDaVasilha(&bancada->vasilhas[pos],
+                                usuario_vegetariano(bancada->usuarios[pos]));
     
     if (tempo >= 0)
         tempo += servente_inicia_atendimento(bancada->serventes[pos]);
@@ -63,20 +65,57 @@ static void atende_usuario(Bancada *bancada, int pos)
 }
 
 
+static void manda_embora_servente(Bancada *bancada, int pos)
+{
+    Servente *serv = bancada->serventes[pos];
+
+    for (int i = 0; i < NING; ++i)
+        if (bancada->serventes[i] == serv)
+            bancada->serventes[i] = NULL;
+
+    --bancada->n_serventes;
+
+    descanso_recebe_servente(bancada->descanso, serv);
+
+    if (bancada->n_serventes)
+        rebalanco(bancada, NULL);
+}
+
+
 void bancada_free(Bancada *bancada)
 {
+    Servente *serv = NULL;
+
+    for (int i = 0; i < NING; ++i)
+    {
+        if (bancada->serventes[i] != serv)
+        {
+            serv = bancada->serventes[i];
+            servente_free(serv);
+        }
+
+        if (bancada->usuarios[i])
+            usuario_free(bancada->usuarios[i]);
+    }
+
     free(bancada);
 }
 
 
-Bancada *bancada_new(const Ingrediente cardapio[NING])
+Bancada *bancada_new(Ingrediente cardapio[NING], Descanso *descanso, bool vegetariana)
 {
     Bancada *new = xcalloc(1, sizeof(Bancada));
+
+    new->vegetariana = vegetariana;
+    new->descanso = descanso;
 
     inicializarFila(&new->fila);
 
     for (int i = 0; i < NING; ++i)
         inicializarVasilha(&new->vasilhas[i], &cardapio[i]);
+
+    new->n_usuarios_atendidos = 0;
+    new->tempo_atendimento = 0;
 
     return new;
 }
@@ -95,7 +134,33 @@ bool bancada_tem_usuarios(const Bancada *bancada)
 }
 
 
-int bancada_ativar(Bancada *bancada, Descanso *descanso)
+bool bancada_esta_ativa(const Bancada *bancada)
+{
+    return bancada->ativa;
+}
+
+
+bool bancada_esta_acolhendo(const Bancada *bancada)
+{
+    return bancada->acolhendo;
+}
+
+
+int bancada_tempo_atendimento(const Bancada *bancada)
+{
+    return (bancada->n_usuarios_atendidos?
+           bancada->tempo_atendimento / bancada->n_usuarios_atendidos
+           : 0);
+}
+
+
+int bancada_tamanho_fila(const Bancada *bancada)
+{
+    return bancada->fila.tamanho;
+}
+
+
+int bancada_ativar(Bancada *bancada)
 {
     int erro = 0;
 
@@ -106,7 +171,7 @@ int bancada_ativar(Bancada *bancada, Descanso *descanso)
 
     for (int i = 0; i < BANSERMIN && !erro; ++i)
     {
-        if (bancada_solicita_servente(bancada, descanso) != i + 1)
+        if (bancada_solicita_servente(bancada) != i + 1)
             erro = 1;
     }
 
@@ -115,32 +180,34 @@ int bancada_ativar(Bancada *bancada, Descanso *descanso)
         bancada->ativa = true;
         bancada->acolhendo = true;
     }
+    else
+        bancada_desativar(bancada);
 
     return erro;
 }
 
 
-void bancada_desativar(Bancada *bancada, Descanso *descanso)
+void bancada_desativar(Bancada *bancada)
 {
     if (!bancada_tem_usuarios(bancada))
     {
         const int c = bancada->n_serventes;
 
-        for (int i = 0; i < c; ++i)
-            bancada_dispensa_servente(bancada, descanso);
-
         bancada->ativa = false;
+
+        for (int i = 0; i < c; ++i)
+            bancada_dispensa_servente(bancada);
     }
 
     bancada->acolhendo = false;
 }
 
 
-int bancada_solicita_servente(Bancada *bancada, Descanso *descanso)
+int bancada_solicita_servente(Bancada *bancada)
 {
     if (bancada->n_serventes < BANSERMAX)
     {
-        Servente *novo = descanso_despacha_servente(descanso);
+        Servente *novo = descanso_despacha_servente(bancada->descanso);
 
         if (novo)
         {
@@ -153,54 +220,46 @@ int bancada_solicita_servente(Bancada *bancada, Descanso *descanso)
 }
 
 
-int bancada_dispensa_servente(Bancada *bancada, Descanso *descanso)
+int bancada_dispensa_servente(Bancada *bancada)
 {
-    Servente *mais_antigo = bancada->serventes[0];
+    if (bancada->n_serventes <= 1 && bancada->ativa)
+        return bancada->n_serventes;
 
-    if (!bancada->n_serventes)
-        return 0;
+    int mais_antigo = 0;
 
-    for (int i = 1; i < BANSERMAX; ++i)
-        mais_antigo = servente_mais_antigo(bancada->serventes[i], mais_antigo);
+    for (int i = 1; i < NING; ++i)
+        if (bancada->serventes[i] != bancada->serventes[mais_antigo]
+            && servente_mais_antigo(bancada->serventes[i],
+                                    bancada->serventes[mais_antigo]) < 0)
+        {
+            mais_antigo = i;
+        }
 
-    for (int i = 0; i < BANSERMAX; ++i)
-        if (bancada->serventes[i] == mais_antigo)
-            bancada->serventes[i] = NULL;
-
-    descanso_recebe_servente(descanso, mais_antigo);
-    --bancada->n_serventes;
-
-    if (bancada->n_serventes)
-        rebalanco(bancada, NULL);
+    manda_embora_servente(bancada, mais_antigo);
 
     return bancada->n_serventes;
 }
 
 
-int bancada_descansos_obrigatorios(Bancada *bancada, Descanso *descanso)
+int bancada_descansos_obrigatorios(Bancada *bancada)
 {
-    Servente *dispensado = NULL;
+    if (bancada->n_serventes <= 1 && bancada->ativa)
+        return bancada->n_serventes;
 
-    if (!bancada->n_serventes)
-        return 0;
+    int pos = 0;
 
-    for (int i = 0; i < BANSERMAX; ++i)
-    {
-        if (bancada->serventes[i] == dispensado)
-            bancada->serventes[i] = NULL;
-
-        else if (servente_precisa_descansar(bancada->serventes[i]) &&
-                 servente_pode_atender(bancada->serventes[i]))
+    for ( ; pos < NING; ++pos)
+        if (servente_precisa_descansar(bancada->serventes[pos])
+            && servente_pode_atender(bancada->serventes[pos]))
         {
-            dispensado = bancada->serventes[i];
-            bancada->serventes[i] = NULL;
-            descanso_recebe_servente(descanso, dispensado);
-            --bancada->n_serventes;
+            break;
         }
-    }
 
-    if (bancada->n_serventes && dispensado)
-        rebalanco(bancada, NULL);
+    if (pos < NING)
+    {
+        manda_embora_servente(bancada, pos);
+        bancada_solicita_servente(bancada);
+    }
 
     return bancada->n_serventes;
 }
@@ -216,14 +275,20 @@ Usuario *bancada_atendimento(Bancada *bancada)
 {
     Usuario *ret = NULL;
 
-    if (bancada->usuarios[NING - 1] &&
-        usuario_foi_atendido(bancada->usuarios[NING - 1]))
+    int pos = bancada->vegetariana? NING - 1 : NING - 2;
+
+    if (bancada->usuarios[pos] &&
+        usuario_foi_atendido(bancada->usuarios[pos]))
     {
-        ret = usuario_deixar_bancada(bancada->usuarios[NING - 1]);
-        bancada->usuarios[NING - 1] = NULL;
+        ret = usuario_deixar_bancada(bancada->usuarios[pos]);
+        bancada->usuarios[pos] = NULL;
+
+        ++bancada->n_usuarios_atendidos;
+        bancada->tempo_atendimento += usuario_tempo_atendimento(ret);
     }
 
-    for (int pos = NING - 1; pos > 0; --pos)
+
+    for ( ; pos > 0; --pos)
     {
         if (!bancada->usuarios[pos] &&
             bancada->usuarios[pos - 1] &&
@@ -241,8 +306,13 @@ Usuario *bancada_atendimento(Bancada *bancada)
         }
     }
 
-    if (!bancada->usuarios[0])
+    if (!bancada->usuarios[0] && !filaVazia(&bancada->fila))
+    {
         bancada->usuarios[0] = usuario_entrar_bancada(desenfileirar(&bancada->fila));
+
+        if (usuario_tempo_fila(bancada->usuarios[0]) <= QUANDO_CHAMAR_SERVENTE)
+            bancada_solicita_servente(bancada);
+    }
 
     if (bancada->usuarios[0] &&
         usuario_esta_aguardando(bancada->usuarios[0]) &&
@@ -250,6 +320,12 @@ Usuario *bancada_atendimento(Bancada *bancada)
     {
         atende_usuario(bancada, 0);
     }
+
+    if (bancada->n_serventes < BANSERMIN)
+        bancada_solicita_servente(bancada);
+
+    if (!bancada_tem_usuarios(bancada) && !bancada->acolhendo)
+        bancada_desativar(bancada);
 
     return ret;
 }

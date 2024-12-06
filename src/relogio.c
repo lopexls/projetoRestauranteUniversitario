@@ -4,6 +4,7 @@
 #include "log.h" 
 #include "relogio.h"
 
+#include <unistd.h>
 
 // Tamanho da string "HH:MM:SS" + \0
 // Seria 9 bytes. Mas, colocamos 16 para silenciar um warning do compilador.
@@ -32,7 +33,7 @@ void relogio_set(Refeicao ref)
 }
 
 
-bool relogio_check_end(Refeicao ref)
+bool relogio_fim(Refeicao ref)
 {
     switch (ref)
     {
@@ -46,15 +47,61 @@ bool relogio_check_end(Refeicao ref)
 }
 
 
-char *relogio_formatado(void)
+int relogio_range(Refeicao ref)
+{
+    switch (ref)
+    {
+        case CAFE_DA_MANHA: return HORAFIMCAFE - HORAINICAFE;
+        case ALMOCO:        return HORAFIMALMOCO - HORAINIALMOCO;
+        case JANTA:         return HORAFIMJANTA - HORAINIJANTA;
+        default:
+            log_err(ERR_CRITICAL, ERR_HORA_NAO_DEF);
+            return 1;
+    }
+}
+
+
+int relogio_hora_relativa(Refeicao ref)
+{
+    switch (ref)
+    {
+        case CAFE_DA_MANHA:     return hora_atual - HORAINICAFE;
+        case ALMOCO:            return hora_atual - HORAINIALMOCO;
+        case JANTA:             return hora_atual - HORAINIJANTA;
+        default:
+            log_err(ERR_CRITICAL, ERR_HORA_NAO_DEF);
+            return 0;
+    }
+}
+
+
+double relogio_hora_fracionada(Refeicao ref)
+{
+    return (double) relogio_hora_relativa(ref) / relogio_range(ref);
+}
+
+
+void relogio_incrementa(int velocidade)
+{
+    if (velocidade > 0)
+    {
+        usleep(1000000 / velocidade);
+    }
+
+    ++hora_atual;
+}
+
+
+char *relogio_formatado(int segundos)
 {
     static char buffer[HORAFMTLEN];
+    int tempo = segundos < 0 ? hora_atual : segundos;
 
-    int horas = hora_atual / 3600;
-    int minutos = (hora_atual % 3600) / 60;
-    int segundos = hora_atual % 60;
+    int horas = tempo / 3600;
+    int minutos = (tempo % 3600) / 60;
+    int seg = tempo % 60;
 
-    snprintf(buffer, HORAFMTLEN, "%02d:%02d:%02d", horas, minutos, segundos);
+    snprintf(buffer, HORAFMTLEN, "%02d:%02d:%02d", horas, minutos, seg);
 
     return buffer;
 }

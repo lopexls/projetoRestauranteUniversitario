@@ -1,68 +1,77 @@
-#include <stdio.h>
+#define _DEFAULT_SOURCE
+
+#include "bancada.h"
+#include "config.h"
+#include "ingrediente.h"
+#include "descanso.h"
+#include "relatorio.h"
 #include "relogio.h"
 #include "servente.h"
 #include "usuario.h"
-#include "vasilha.h"
-#include "bancada.h"
+
+#include <stdio.h>
+
+
+static const char *nomeDaRef[] = {"Café da Manhã", "Almoço", "Jantar"};
+
+static const char *nomeDoIng[] = {"Arroz", "Feijão", "Proteína animal",
+                                  "Legumes Cozidos", "Legumes salada",
+                                  "Folhas", "Opção vegetariana"};
 
 //  relatório do expediente
-void gerar_relatorio(Bancada *bancadas, int n_bancadas, Servente **serventes, int n_serventes, Ingrediente *ingredientes, int n_ingredientes) {
-    int total_usuarios = 0;
-    double tempo_total_atendimento = 0;
-    double tempo_total_espera = 0;
-    int total_consumido[n_ingredientes];
+void gerar_relatorio(Restaurante *ru, int total_usuarios,
+                     int tempo_total_espera, int tempo_total_atendimento)
+{
+    printf("\n==== RELATÓRIO DO EXPEDIENTE: %s ====\n",
+           nomeDaRef[ru->refeicao]);
 
-    // Inicializar 
-    for (int i = 0; i < n_ingredientes; i++) {
-        total_consumido[i] = 0;
-    }
-
-    printf("\n==== RELATÓRIO DO EXPEDIENTE ====\n");
-
-    // servente
+    Servente **serventes = ru->descanso->serventes;
     printf("\nServentes:\n");
-    for (int i = 0; i < n_serventes; i++) {
+    for (int i = 0; i < QTDSERMAX + 1; i++) {
         if (serventes[i]) {
-            printf("Servente %d:\n", i + 1);
-            printf("- Usuários atendidos: %d\n", serventes[i]->n_usuarios_servidos);
-            printf("- Tempo médio de atendimento: %.2f segundos\n", servente_tempo_atendimento_medio(serventes[i]));
+            printf(
+                "Servente %d:\n"
+                "- Atendimentos realizados: %d\n"
+                "- Tempo médio de atendimento: %d segundos\n",
+                i + 1,
+                serventes[i]->n_usuarios_servidos,
+                servente_tempo_atendimento_medio(serventes[i]));
         }
     }
 
-    // bancada
+    Bancada **bancadas = ru->bancadas;
     printf("\nBancadas:\n");
-    for (int i = 0; i < n_bancadas; i++) {
-        int usuarios_atendidos = 0;
-        double tempo_atendimento = 0;
-
-        for (int j = 0; j < NING; j++) {
-            if (bancadas[i].usuarios[j]) {
-                usuarios_atendidos++;
-                tempo_atendimento += usuario_tempo_atendimento(bancadas[i].usuarios[j]);
-                tempo_total_espera += usuario_tempo_fila(bancadas[i].usuarios[j]);
-            }
-        }
-
-        printf("Bancada %d:\n", i + 1);
-        printf("- Usuários atendidos: %d\n", usuarios_atendidos);
-        printf("- Tempo médio de atendimento: %.2f segundos\n", usuarios_atendidos > 0 ? tempo_atendimento / usuarios_atendidos : 0);
-
-        total_usuarios += usuarios_atendidos;
-        tempo_total_atendimento += tempo_atendimento;
+    for (int i = 0; i < QTDBANCADAMAX; i++) {
+        printf(
+            "Bancada %d:\n"
+            "- Usuários atendidos: %d\n"
+            "- Tempo médio de atendimento: %d segundos\n",
+            i + 1,
+            bancadas[i]->n_usuarios_atendidos,
+            bancada_tempo_atendimento(bancadas[i]));
     }
 
-    // ingredientes
+    Ingrediente *ingredientes = ru->cardapio;
     printf("\nIngredientes consumidos:\n");
-    for (int i = 0; i < n_ingredientes; i++) {
-        total_consumido[i] = ingredientes[i].capacidade - ingredientes[i].quantidadeAtual;
-        printf("- %s: %d gramas consumidos\n", ingredientes[i].nome, total_consumido[i]);
+    for (int i = 0; i < NING; i++) {
+        printf(
+            "Ingrediente: %s\n"
+            "- Total consumido: %d kg\n",
+            nomeDoIng[ingredientes[i].tipo],
+            ingredientes[i].totalConsumido / 1000);
     }
 
     // geral
-    printf("\nResumo geral:\n");
-    printf("- Usuários atendidos: %d\n", total_usuarios);
-    printf("- Tempo médio de atendimento dos usuários: %.2f segundos\n", total_usuarios > 0 ? tempo_total_atendimento / total_usuarios : 0);
-    printf("- Tempo médio de espera nas filas: %.2f segundos\n", total_usuarios > 0 ? tempo_total_espera / total_usuarios : 0);
+    printf(
+        "\nResumo geral:\n"
+        "- Usuários atendidos: %d\n"
+        "- Tempo médio de atendimento dos usuários: %d segundos\n"
+        "- Tempo médio de espera nas filas: %d segundos\n"
+        "- Hora de fechamento: %s\n",
+        total_usuarios,
+        total_usuarios > 0 ? tempo_total_espera / total_usuarios : 0,
+        total_usuarios > 0 ? tempo_total_atendimento / total_usuarios : 0,
+        relogio_formatado(-1));
 
     printf("\n==== FIM DO RELATÓRIO ====\n");
 }

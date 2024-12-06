@@ -28,9 +28,14 @@ Servente *servente_transfere(Servente *servente)
 }
 
 
-Servente *servente_mais_antigo(Servente *a, Servente *b)
+int servente_mais_antigo(const Servente *a, const Servente *b)
 {
-    return ((a->hora_ultima_mudanca < b->hora_ultima_mudanca) ? a : b);
+    if (a->hora_ultima_mudanca < b->hora_ultima_mudanca)
+        return -1;
+    else if (a->hora_ultima_mudanca > b->hora_ultima_mudanca)
+        return 1;
+    else
+        return 0;
 }
 
 
@@ -63,8 +68,9 @@ bool servente_pode_trabalhar(const Servente *servente)
 }
 
 
-double servente_tempo_atendimento_medio(const Servente *servente)
+int servente_tempo_atendimento_medio(const Servente *servente)
 {
-    return (double) servente->s_atendimento_acumulado
-                    / servente->n_usuarios_servidos;
+    return (servente->n_usuarios_servidos?
+            servente->s_atendimento_acumulado / servente->n_usuarios_servidos
+            : 0);
 }

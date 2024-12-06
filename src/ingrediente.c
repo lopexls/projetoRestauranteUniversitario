@@ -12,8 +12,10 @@ static const double aceitacaoMediaDoTipo[] = {0.95, 0.9, 0.75, 0.65, 0.65, 0.65,
 
 void inicializarIngrediente(Ingrediente *i, TipoIngrediente t)
 {
+    i->tipo = t;
     i->capVasilha = QTDPORCVAS * porcaoMediaDoTipo[t];
     i->porcaoMedia = porcaoMediaDoTipo[t];
+    i->totalConsumido = 0;
 
     do
     {

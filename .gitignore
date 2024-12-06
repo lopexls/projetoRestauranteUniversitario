@@ -1,2 +1,4 @@
 # Diagramas gerados não precisam ser incluídos no git
 *.png
+# diretório de testes também não precisa
+test/*

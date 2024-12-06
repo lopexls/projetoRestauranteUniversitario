@@ -45,6 +45,12 @@ bool usuario_foi_atendido(const Usuario *u)
 }
 
 
+bool usuario_vegetariano(const Usuario *u)
+{
+    return u->tipo == VEGETARIANO;
+}
+
+
 int usuario_tempo_fila(const Usuario *u)
 {
     return u->hora_chega_bancada - u->hora_criacao;

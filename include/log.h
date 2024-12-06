@@ -1,9 +1,7 @@
 /** @file log.h
  * Funcionalidade de log do programa.
  *
- * Provavelmente ainda vai ser espandida ou totalmente reformulada no futuro.
- * Por enquanto, serve apenas para registrar eventuais erros de alocação de
- * memória.
+ * Serve para registrar mensagens de erro e debug.
  */
 #pragma once
 
@@ -34,3 +32,12 @@ typedef enum
  * @param source A fonte do erro. Ver `ErrSource`.
  */
 void log_err(ErrType type, ErrSource source);
+
+
+/** Imprime uma mensagem se NDEBUG não estiver definido.
+ *
+ * Caso a macro NDEBUG não estiver definida, esta função não faz nada.
+ *
+ * @param msg Ponteiro para uma cadeia de caracteres, que será impressa.
+ */
+void log_debug(const char *msg);
