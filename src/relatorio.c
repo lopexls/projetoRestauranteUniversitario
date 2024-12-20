@@ -65,8 +65,8 @@ void gerar_relatorio(Restaurante *ru, int total_usuarios,
     printf(
         "\nResumo geral:\n"
         "- Usuários atendidos: %d\n"
-        "- Tempo médio de atendimento dos usuários: %d segundos\n"
         "- Tempo médio de espera nas filas: %d segundos\n"
+        "- Tempo médio de atendimento dos usuários: %d segundos\n"
         "- Hora de fechamento: %s\n",
         total_usuarios,
         total_usuarios > 0 ? tempo_total_espera / total_usuarios : 0,
